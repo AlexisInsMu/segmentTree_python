@@ -1,5 +1,7 @@
-use pyo3::prelude::*;
-use pyo3::wrap_pyfunction;
+
+use std::vec;
+
+use pyo3::{prelude::*, types::PyList};
 
 #[pyclass]
 pub struct SegmentTree {
@@ -10,14 +12,15 @@ pub struct SegmentTree {
 #[pymethods]
 impl SegmentTree {
     #[new]
-    pub fn new(arr: Vec<i64>) -> Self {
+    //#[pyo3(signature = (*arr))]
+    pub fn new( arr: Vec<i64>) -> PyResult<Self> {
         let n = arr.len();
         let mut seg_tree = SegmentTree {
             n,
             data: vec![0; 4 * n],
         };
         seg_tree.build(1, 0, n - 1, arr);
-        seg_tree
+        Ok(seg_tree)
     }
 
     fn build(&mut self, k: usize, l: usize, r: usize, arr: Vec<i64>) {
@@ -40,11 +43,11 @@ impl SegmentTree {
         }
     }
 
-    pub fn query(&self, a: usize, b: usize) -> i64 {
-        self.query_(1, 0, self.n - 1, a, b)
+    pub fn query(&self, a: usize, b: usize) -> PyResult<i64> {
+        Ok(self.query_(1, 0, self.n - 1, a, b))
     }
 
-    fn query_(&self, k: usize, l: usize, r: usize, a: usize, b: usize) -> i64 {
+    fn query_(&self, k: usize, l: usize, r: usize, a: usize, b: usize) -> i64{
         if a > b {
             return self.neutro_element();
         }
@@ -65,8 +68,10 @@ impl SegmentTree {
         0
     }
 }
+
 #[pymodule]
-fn segment_tree(_py: Python<'_>, module: &Bound<'_, PyModule>) -> PyResult<()> {
-    module.add_class::<SegmentTree>()?;
+#[pyo3(name = "segment_tree")]
+fn segment_tree(m: &Bound<'_,PyModule>) -> PyResult<()> {
+    m.add_class::<SegmentTree>()?;
     Ok(())
 }

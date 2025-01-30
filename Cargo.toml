@@ -1,7 +1,12 @@
 [package]
-name = "segmentTree"
-version = "0.1.0"
+name = "segment_tree"
+version = "0.2.0"
 edition = "2021"
+
+[lib]
+name = "segment_tree"
+crate-type = ["cdylib"]
+
 
 [dependencies]
 pyo3 = { version = "0.23.4", features = ["extension-module"] }
